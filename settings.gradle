@@ -1,0 +1,8 @@
+rootProject.name = 'ecommerce-ms'
+
+include 'common'
+include 'order-service'
+include 'payment-service'
+include 'inventory-service'
+include 'notification-service'
+include 'api-gateway'

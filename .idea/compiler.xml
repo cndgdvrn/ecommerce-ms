@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.46/a5cfe99fdf320e84955ef653f2ce1bf789d11385/lombok-1.18.46.jar" />
+        </processorPath>
+        <module name="ecommerce-ms.order-service.test" />
+        <module name="ecommerce-ms.inventory-service.test" />
+        <module name="ecommerce-ms.notification-service.test" />
+        <module name="ecommerce-ms.payment-service.test" />
+        <module name="ecommerce-ms.api-gateway.main" />
+        <module name="ecommerce-ms.notification-service.main" />
+        <module name="ecommerce-ms.payment-service.main" />
+        <module name="ecommerce-ms.api-gateway.test" />
+        <module name="ecommerce-ms.inventory-service.main" />
+        <module name="ecommerce-ms.order-service.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="21">
+      <module name="api-gateway" target="21" />
+      <module name="api-gateway.main" target="21" />
+      <module name="api-gateway.test" target="21" />
+      <module name="common" target="22" />
+      <module name="common.main" target="22" />
+      <module name="common.test" target="22" />
+      <module name="inventory-service" target="21" />
+      <module name="inventory-service.main" target="21" />
+      <module name="inventory-service.test" target="21" />
+      <module name="notification-service" target="21" />
+      <module name="notification-service.main" target="21" />
+      <module name="notification-service.test" target="21" />
+      <module name="order-service" target="21" />
+      <module name="order-service.main" target="21" />
+      <module name="order-service.test" target="21" />
+      <module name="payment-service" target="21" />
+      <module name="payment-service.main" target="21" />
+      <module name="payment-service.test" target="21" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api-gateway" options="-parameters" />
+      <module name="api-gateway.main" options="-parameters" />
+      <module name="api-gateway.test" options="-parameters" />
+      <module name="ecommerce-ms.api-gateway" options="-parameters" />
+      <module name="ecommerce-ms.api-gateway.main" options="-parameters" />
+      <module name="ecommerce-ms.api-gateway.test" options="-parameters" />
+      <module name="ecommerce-ms.inventory-service" options="-parameters" />
+      <module name="ecommerce-ms.inventory-service.main" options="-parameters" />
+      <module name="ecommerce-ms.inventory-service.test" options="-parameters" />
+      <module name="ecommerce-ms.notification-service" options="-parameters" />
+      <module name="ecommerce-ms.notification-service.main" options="-parameters" />
+      <module name="ecommerce-ms.notification-service.test" options="-parameters" />
+      <module name="ecommerce-ms.order-service" options="-parameters" />
+      <module name="ecommerce-ms.order-service.main" options="-parameters" />
+      <module name="ecommerce-ms.order-service.test" options="-parameters" />
+      <module name="ecommerce-ms.payment-service" options="-parameters" />
+      <module name="ecommerce-ms.payment-service.main" options="-parameters" />
+      <module name="ecommerce-ms.payment-service.test" options="-parameters" />
+      <module name="inventory-service" options="-parameters" />
+      <module name="inventory-service.main" options="-parameters" />
+      <module name="inventory-service.test" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
+      <module name="notification-service.main" options="-parameters" />
+      <module name="notification-service.test" options="-parameters" />
+      <module name="order-service" options="-parameters" />
+      <module name="order-service.main" options="-parameters" />
+      <module name="order-service.test" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
+      <module name="payment-service.main" options="-parameters" />
+      <module name="payment-service.test" options="-parameters" />
+    </option>
+  </component>
+</project>
