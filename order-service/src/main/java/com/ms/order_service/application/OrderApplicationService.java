@@ -31,7 +31,7 @@ public class OrderApplicationService {
         UUID correlationId = UUID.randomUUID();
 
         ProcessPaymentCommandPayload payload = new ProcessPaymentCommandPayload(orderId, customerId, amount, currency);
-        MessageEnvelope<ProcessPaymentCommandPayload> envelope = new MessageEnvelope<>(
+        MessageEnvelope<ProcessPaymentCommandPayload> envelope = MessageEnvelope.of(
                 MessageTypes.PROCESS_PAYMENT_COMMAND,
                 AggregateTypes.ORDER,
                 orderId.toString(),

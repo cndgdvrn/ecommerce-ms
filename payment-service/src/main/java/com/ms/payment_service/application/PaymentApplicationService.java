@@ -35,15 +35,7 @@ public class PaymentApplicationService {
                 new PaymentCompletedEventPayload(orderId, customerId, paymentId, paidAmount, currency);
 
 
-        MessageEnvelope<PaymentCompletedEventPayload> event = new MessageEnvelope<>(
-                MessageTypes.PAYMENT_COMPLETED_EVENT,
-                AggregateTypes.ORDER,
-                orderId.toString(),
-                command.getCorrelationId(),
-                command.getMessageId(),
-                1,
-                eventPayload
-        );
+        MessageEnvelope<ProcessPaymentCommandPayload> event = MessageEnvelope.from(command, MessageTypes.PAYMENT_COMPLETED_EVENT, command.getPayload());
 
         kafkaMessagePublisher.publish(Topics.PAYMENT_EVENTS, orderId.toString(),event);
 

@@ -43,6 +43,24 @@ public class MessageEnvelope<T> {
         this.payload = payload;
     }
 
+
+    public static <T> MessageEnvelope<T> of(String messageType, String aggregateType, String aggregateId, UUID correlationId, UUID causationId, Integer version, T payload){
+        return new MessageEnvelope<>(messageType,aggregateType,aggregateId,correlationId,causationId, version, payload);
+    }
+
+    public static <T> MessageEnvelope<T> from(MessageEnvelope<?> source, String messageType, T payload){
+        return new MessageEnvelope<>(
+                messageType,
+                source.getAggregateType(),
+                source.getAggregateId(),
+                source.getCorrelationId(),
+                source.getMessageId(),
+                source.getVersion(),
+                payload
+        );
+    }
+
+
     public UUID getMessageId() {
         return messageId;
     }
