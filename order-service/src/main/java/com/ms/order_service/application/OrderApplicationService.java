@@ -27,9 +27,9 @@ public class OrderApplicationService {
     private final KafkaMessagePublisher kafkaMessagePublisher;
     private final OrderRepository orderRepository;
 
+    @Transactional
     public Long createOrder(){
 
-        Long orderId = System.currentTimeMillis();
         Long customerId = 6L;
         BigDecimal amount = new BigDecimal(750);
         String currency = "TRY";
@@ -38,20 +38,20 @@ public class OrderApplicationService {
         Order order = new Order(customerId, amount, currency);
         orderRepository.save(order);
 
-        ProcessPaymentCommandPayload payload = new ProcessPaymentCommandPayload(orderId, customerId, amount, currency);
+        ProcessPaymentCommandPayload payload = new ProcessPaymentCommandPayload(order.getId(), customerId, amount, currency);
         MessageEnvelope<ProcessPaymentCommandPayload> envelope = MessageEnvelope.of(
                 MessageTypes.PROCESS_PAYMENT_COMMAND,
                 AggregateTypes.ORDER,
-                orderId.toString(),
+                order.getId().toString(),
                 correlationId,
                 null,
                 1,
                 payload
         );
 
-        kafkaMessagePublisher.publish(Topics.PAYMENT_COMMANDS,orderId.toString(),envelope);
-        log.info("ProcessPaymentCommand published. orderId={}, correlationId={}", orderId, correlationId);
-        return orderId;
+        kafkaMessagePublisher.publish(Topics.PAYMENT_COMMANDS,order.getId().toString(),envelope);
+        log.info("ProcessPaymentCommand published. orderId={}, correlationId={}", order.getId(), correlationId);
+        return order.getId();
     }
 
     @Transactional

@@ -16,6 +16,8 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    volumes:
+      - kafka_data:/var/lib/kafka/data
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -37,6 +39,8 @@ services:
       POSTGRES_DB: order_db
       POSTGRES_USER: order_user
       POSTGRES_PASSWORD: order_pass
+    volumes:
+      - postgres_order_data:/var/lib/postgresql/data
 
   payment-db:
     image: postgres:16
@@ -47,6 +51,8 @@ services:
       POSTGRES_DB: payment_db
       POSTGRES_USER: payment_user
       POSTGRES_PASSWORD: payment_pass
+    volumes:
+      - postgres_payment_data:/var/lib/postgresql/data
 
   inventory-db:
     image: postgres:16
@@ -57,3 +63,28 @@ services:
       POSTGRES_DB: inventory_db
       POSTGRES_USER: inventory_user
       POSTGRES_PASSWORD: inventory_pass
+    volumes:
+      - postgres_inventory_data:/var/lib/postgresql/data
+
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ecommerce-pgadmin
+    ports:
+      - "5050:80"
+    depends_on:
+      - order-db
+      - payment-db
+      - inventory-db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_inventory_data:
+  postgres_payment_data:
+  postgres_order_data:
+  pgadmin_data:
+  kafka_data:
