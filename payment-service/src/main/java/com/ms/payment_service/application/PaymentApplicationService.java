@@ -21,8 +21,8 @@ public class PaymentApplicationService {
 
     private final KafkaMessagePublisher kafkaMessagePublisher;
 
-    public void processPayment(MessageEnvelope<ProcessPaymentCommandPayload> command){
-        ProcessPaymentCommandPayload payload = command.getPayload();
+    public void processPayment(MessageEnvelope<ProcessPaymentCommandPayload> envelope){
+        ProcessPaymentCommandPayload payload = envelope.getPayload();
 
         Long orderId = payload.orderId();
         Long customerId = payload.customerId();
@@ -35,7 +35,7 @@ public class PaymentApplicationService {
                 new PaymentCompletedEventPayload(orderId, customerId, paymentId, paidAmount, currency);
 
 
-        MessageEnvelope<PaymentCompletedEventPayload> event = MessageEnvelope.from(command, MessageTypes.PAYMENT_COMPLETED_EVENT, eventPayload);
+        MessageEnvelope<PaymentCompletedEventPayload> event = MessageEnvelope.from(envelope, MessageTypes.PAYMENT_COMPLETED_EVENT, eventPayload);
 
         kafkaMessagePublisher.publish(Topics.PAYMENT_EVENTS, orderId.toString(),event);
 

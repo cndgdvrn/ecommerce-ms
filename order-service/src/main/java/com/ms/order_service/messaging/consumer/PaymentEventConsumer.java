@@ -35,8 +35,10 @@ public class PaymentEventConsumer {
             ack.acknowledge();
             return;
         }
-        PaymentCompletedEventPayload paylaod = objectMapper.convertValue(message.getPayload(), PaymentCompletedEventPayload.class);
-        orderApplicationService.markPaymentCompleted(paylaod);
+        PaymentCompletedEventPayload payload = objectMapper.convertValue(message.getPayload(), PaymentCompletedEventPayload.class);
+        MessageEnvelope<PaymentCompletedEventPayload> typedMessage = message.withPayload(payload);
+
+        orderApplicationService.markPaymentCompleted(typedMessage);
         ack.acknowledge();
     }
 

@@ -46,11 +46,14 @@ public class OrderApplicationService {
         return orderId;
     }
 
-    public void markPaymentCompleted(PaymentCompletedEventPayload payload){
-        log.info("Order payment completed. orderId={}, paymentId={}, paidAmount={}",
+    public void markPaymentCompleted(MessageEnvelope<PaymentCompletedEventPayload> event){
+        PaymentCompletedEventPayload payload = event.getPayload();
+        log.info("Order payment completed. orderId={}, paymentId={}, paidAmount={}, correlationId={}, causitionId:{}",
                 payload.orderId(),
                 payload.paymentId(),
-                payload.paidAmount()
+                payload.paidAmount(),
+                event.getCorrelationId(),
+                event.getCausationId()
         );
     }
 
