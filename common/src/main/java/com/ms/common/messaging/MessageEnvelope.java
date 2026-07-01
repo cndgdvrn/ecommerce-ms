@@ -43,6 +43,28 @@ public class MessageEnvelope<T> {
         this.payload = payload;
     }
 
+    public MessageEnvelope(
+            UUID messageId,
+            String messageType,
+            String aggregateType,
+            String aggregateId,
+            UUID correlationId,
+            UUID causationId,
+            Integer version,
+            Instant occurredAt,
+            T payload
+    ) {
+        this.messageId = messageId;
+        this.messageType = messageType;
+        this.aggregateType = aggregateType;
+        this.aggregateId = aggregateId;
+        this.correlationId = correlationId;
+        this.causationId = causationId;
+        this.version = version;
+        this.occurredAt = occurredAt;
+        this.payload = payload;
+    }
+
 
     public static <T> MessageEnvelope<T> of(String messageType, String aggregateType, String aggregateId, UUID correlationId, UUID causationId, Integer version, T payload){
         return new MessageEnvelope<>(messageType,aggregateType,aggregateId,correlationId,causationId, version, payload);
@@ -56,6 +78,20 @@ public class MessageEnvelope<T> {
                 source.getCorrelationId(),
                 source.getMessageId(),
                 source.getVersion(),
+                payload
+        );
+    }
+
+    public <R> MessageEnvelope<R> withPayload(R payload){
+        return new MessageEnvelope<>(
+                this.messageId,
+                this.messageType,
+                this.aggregateType,
+                this.aggregateId,
+                this.correlationId,
+                this.causationId,
+                this.version,
+                this.occurredAt,
                 payload
         );
     }

@@ -34,16 +34,7 @@ public class PaymentCommandConsumer {
         }
 
         ProcessPaymentCommandPayload payload = objectMapper.convertValue(message.getPayload(), ProcessPaymentCommandPayload.class);
-        MessageEnvelope<ProcessPaymentCommandPayload> typedMessage = new MessageEnvelope<>(
-                message.getMessageId(),
-                message.getMessageType(),
-                message.getAggregateType(),
-                message.getAggregateId(),
-                message.getCorrelationId(),
-                message.getCausationId(),
-                message.getVersion(),
-                payload
-        );
+        MessageEnvelope<ProcessPaymentCommandPayload> typedMessage = message.withPayload(payload);
 
         paymentApplicationService.processPayment(typedMessage);
         acknowledgment.acknowledge();
