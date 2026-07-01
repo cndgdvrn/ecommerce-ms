@@ -1,11 +1,10 @@
 package com.ms.order_service.api;
 
 
+import com.ms.order_service.api.dto.OrderResponse;
 import com.ms.order_service.application.OrderApplicationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/orders")
@@ -18,6 +17,11 @@ public class OrderController {
     public String createOrder(){
         Long orderId = orderApplicationService.createOrder();
         return "Order created" + orderId;
+    }
+
+    @GetMapping("/{orderId}")
+    public OrderResponse getOrder(@PathVariable Long orderId) {
+        return orderApplicationService.getOrder(orderId);
     }
 
 }

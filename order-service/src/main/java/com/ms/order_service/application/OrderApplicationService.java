@@ -7,6 +7,7 @@ import com.ms.common.messaging.AggregateTypes;
 import com.ms.common.messaging.MessageEnvelope;
 import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
+import com.ms.order_service.api.dto.OrderResponse;
 import com.ms.order_service.domain.model.Order;
 import com.ms.order_service.domain.repository.OrderRepository;
 import com.ms.order_service.messaging.publisher.KafkaMessagePublisher;
@@ -52,6 +53,22 @@ public class OrderApplicationService {
         kafkaMessagePublisher.publish(Topics.PAYMENT_COMMANDS,order.getId().toString(),envelope);
         log.info("ProcessPaymentCommand published. orderId={}, correlationId={}", order.getId(), correlationId);
         return order.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponse getOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalStateException("Order not found. orderId=" + orderId));
+
+        return new OrderResponse(
+                order.getId(),
+                order.getCustomerId(),
+                order.getTotalAmount(),
+                order.getCurrency(),
+                order.getStatus(),
+                order.getCreatedAt(),
+                order.getUpdatedAt()
+        );
     }
 
     @Transactional
