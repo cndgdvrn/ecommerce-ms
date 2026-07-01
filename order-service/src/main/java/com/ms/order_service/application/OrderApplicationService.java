@@ -1,6 +1,8 @@
 package com.ms.order_service.application;
 
 
+import com.ms.common.contracts.inventory.OrderItemPayload;
+import com.ms.common.contracts.inventory.ReserveStockCommandPayload;
 import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
 import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
 import com.ms.common.messaging.AggregateTypes;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -79,9 +82,16 @@ public class OrderApplicationService {
                 .orElseThrow(() -> new IllegalStateException("Order not found. orderId=" + payload.orderId()));
 
         order.markPaymentCompleted();
+        order.markStockPending();
         orderRepository.save(order);
 
-        log.info("Order payment completed. orderId={}, paymentId={}, paidAmount={}, correlationId={}, causationId:{}",
+        OrderItemPayload orderItemPayload = new OrderItemPayload(1L, 1);
+        ReserveStockCommandPayload reserveStockPayload = new ReserveStockCommandPayload(payload.orderId(), List.of(orderItemPayload));
+
+        MessageEnvelope<ReserveStockCommandPayload> reserveStockCommand = MessageEnvelope.from(event, MessageTypes.RESERVE_STOCK_COMMAND, reserveStockPayload);
+        kafkaMessagePublisher.publish(Topics.INVENTORY_COMMANDS, payload.orderId().toString(),reserveStockCommand);
+
+        log.info("Order payment completed. orderId={}, paymentId={}, paidAmount={}, correlationId={}, causationId={}",
                 payload.orderId(),
                 payload.paymentId(),
                 payload.paidAmount(),

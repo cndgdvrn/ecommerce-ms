@@ -46,5 +46,20 @@ public class Order {
         this.updatedAt = Instant.now();
     }
 
+    public void markStockPending(){
+        this.status = OrderStatus.STOCK_PENDING;
+        this.updatedAt = Instant.now();
+    }
+
+    public void markStockReserved() {
+        this.status = OrderStatus.STOCK_RESERVED;
+        this.updatedAt = Instant.now();
+    }
+
+    public void markStockFailed() {
+        this.status = OrderStatus.STOCK_FAILED;
+        this.updatedAt = Instant.now();
+    }
+
 
 }
