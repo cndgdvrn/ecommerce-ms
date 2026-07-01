@@ -1,0 +1,16 @@
+1. Inventory contracts
+2. PaymentCompletedEvent sonrası ReserveStockCommand publish
+3. inventory-service consumer
+4. inventory DB: Product + StockReservation
+5. StockReservedEvent / StockReservationFailedEvent
+6. Order status: STOCK_PENDING → CONFIRMED / CANCELLED
+7. Notification service
+8. Payment failure senaryosu
+9. Stock failure + refund compensation
+10. Outbox pattern
+11. Idempotent consumer
+12. Retry + DLQ
+13. Tests
+14. Dockerfile + CI/CD
+15. Observability
+16. Optional Kubernetes
