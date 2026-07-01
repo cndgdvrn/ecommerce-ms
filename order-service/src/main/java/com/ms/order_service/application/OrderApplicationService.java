@@ -85,9 +85,7 @@ public class OrderApplicationService {
         order.markStockPending();
         orderRepository.save(order);
 
-        OrderItemPayload orderItemPayload = new OrderItemPayload(1L, 1);
-        ReserveStockCommandPayload reserveStockPayload = new ReserveStockCommandPayload(payload.orderId(), List.of(orderItemPayload));
-
+        ReserveStockCommandPayload reserveStockPayload = new ReserveStockCommandPayload(payload.orderId(), List.of(new OrderItemPayload(1L, 1)));
         MessageEnvelope<ReserveStockCommandPayload> reserveStockCommand = MessageEnvelope.from(event, MessageTypes.RESERVE_STOCK_COMMAND, reserveStockPayload);
         kafkaMessagePublisher.publish(Topics.INVENTORY_COMMANDS, payload.orderId().toString(),reserveStockCommand);
 
