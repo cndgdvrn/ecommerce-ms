@@ -7,13 +7,17 @@ import com.ms.common.messaging.AggregateTypes;
 import com.ms.common.messaging.MessageEnvelope;
 import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
+import com.ms.order_service.domain.model.Order;
+import com.ms.order_service.domain.repository.OrderRepository;
 import com.ms.order_service.messaging.publisher.KafkaMessagePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ import java.util.UUID;
 public class OrderApplicationService {
 
     private final KafkaMessagePublisher kafkaMessagePublisher;
+    private final OrderRepository orderRepository;
 
     public Long createOrder(){
 
@@ -29,6 +34,9 @@ public class OrderApplicationService {
         BigDecimal amount = new BigDecimal(750);
         String currency = "TRY";
         UUID correlationId = UUID.randomUUID();
+
+        Order order = new Order(customerId, amount, currency);
+        orderRepository.save(order);
 
         ProcessPaymentCommandPayload payload = new ProcessPaymentCommandPayload(orderId, customerId, amount, currency);
         MessageEnvelope<ProcessPaymentCommandPayload> envelope = MessageEnvelope.of(
@@ -46,9 +54,17 @@ public class OrderApplicationService {
         return orderId;
     }
 
+    @Transactional
     public void markPaymentCompleted(MessageEnvelope<PaymentCompletedEventPayload> event){
         PaymentCompletedEventPayload payload = event.getPayload();
-        log.info("Order payment completed. orderId={}, paymentId={}, paidAmount={}, correlationId={}, causitionId:{}",
+
+        Order order = orderRepository.findById(payload.orderId())
+                .orElseThrow(() -> new IllegalStateException("Order not found. orderId=" + payload.orderId()));
+
+        order.markPaymentCompleted();
+        orderRepository.save(order);
+
+        log.info("Order payment completed. orderId={}, paymentId={}, paidAmount={}, correlationId={}, causationId:{}",
                 payload.orderId(),
                 payload.paymentId(),
                 payload.paidAmount(),
