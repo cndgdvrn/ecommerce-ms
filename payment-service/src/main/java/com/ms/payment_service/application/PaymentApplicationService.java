@@ -3,6 +3,7 @@ package com.ms.payment_service.application;
 import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
 import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
 import com.ms.common.messaging.MessageEnvelope;
+import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
 import com.ms.payment_service.messaging.publisher.KafkaMessagePublisher;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class PaymentApplicationService {
 
 
         MessageEnvelope<PaymentCompletedEventPayload> event = new MessageEnvelope<>(
-                "PaymentCompletedEvent",
+                MessageTypes.PAYMENT_COMPLETED_EVENT,
                 "ORDER",
                 orderId.toString(),
                 command.getCorrelationId(),

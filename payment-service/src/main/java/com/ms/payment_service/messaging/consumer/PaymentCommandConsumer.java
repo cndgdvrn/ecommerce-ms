@@ -4,6 +4,7 @@ package com.ms.payment_service.messaging.consumer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
 import com.ms.common.messaging.MessageEnvelope;
+import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
 import com.ms.payment_service.application.PaymentApplicationService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,13 @@ public class PaymentCommandConsumer {
             groupId = "payment-service-group"
     )
     public void consume(MessageEnvelope<?> message, Acknowledgment acknowledgment){
+
+        if (!MessageTypes.PROCESS_PAYMENT_COMMAND.equals(message.getMessageType())) {
+            log.info("Message ignored. messageType={}", message.getMessageType());
+            acknowledgment.acknowledge();
+            return;
+        }
+
         ProcessPaymentCommandPayload payload = objectMapper.convertValue(message.getPayload(), ProcessPaymentCommandPayload.class);
         MessageEnvelope<ProcessPaymentCommandPayload> typedMessage = new MessageEnvelope<>(
                 message.getMessageId(),
@@ -33,7 +41,8 @@ public class PaymentCommandConsumer {
                 message.getAggregateId(),
                 message.getCorrelationId(),
                 message.getCausationId(),
-                message.getVersion(),payload
+                message.getVersion(),
+                payload
         );
 
         paymentApplicationService.processPayment(typedMessage);

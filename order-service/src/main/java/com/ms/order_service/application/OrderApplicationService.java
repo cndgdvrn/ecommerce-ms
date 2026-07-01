@@ -4,6 +4,7 @@ package com.ms.order_service.application;
 import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
 import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
 import com.ms.common.messaging.MessageEnvelope;
+import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
 import com.ms.order_service.messaging.publisher.KafkaMessagePublisher;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class OrderApplicationService {
 
         ProcessPaymentCommandPayload payload = new ProcessPaymentCommandPayload(orderId, customerId, amount, currency);
         MessageEnvelope<ProcessPaymentCommandPayload> envelope = new MessageEnvelope<>(
-                "ProcessPaymentCommandPayload",
+                MessageTypes.PROCESS_PAYMENT_COMMAND,
                 "ORDER",
                 orderId.toString(),
                 correlationId,

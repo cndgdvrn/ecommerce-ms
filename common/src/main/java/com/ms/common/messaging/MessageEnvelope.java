@@ -13,12 +13,10 @@ public class MessageEnvelope<T> {
     UUID correlationId;
     UUID causationId;
     Integer version;
-    Instant occuredAt;
+    Instant occurredAt;
     T payload;
 
-    public MessageEnvelope(){
-
-    }
+    public MessageEnvelope(){}
 
 
     public MessageEnvelope(String messageType, String aggregateType, String aggregateId, UUID correlationId, UUID causationId, Integer version,  T payload) {
@@ -29,7 +27,7 @@ public class MessageEnvelope<T> {
         this.correlationId = correlationId;
         this.causationId = causationId;
         this.version = version;
-        this.occuredAt = Instant.now();
+        this.occurredAt = Instant.now();
         this.payload = payload;
     }
 
@@ -41,7 +39,7 @@ public class MessageEnvelope<T> {
         this.correlationId = correlationId;
         this.causationId = causationId;
         this.version = version;
-        this.occuredAt = Instant.now();
+        this.occurredAt = Instant.now();
         this.payload = payload;
     }
 
@@ -73,8 +71,8 @@ public class MessageEnvelope<T> {
         return version;
     }
 
-    public Instant getOccuredAt() {
-        return occuredAt;
+    public Instant getOccurredAt() {
+        return occurredAt;
     }
 
     public T getPayload() {

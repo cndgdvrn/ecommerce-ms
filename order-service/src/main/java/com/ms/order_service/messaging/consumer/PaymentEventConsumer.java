@@ -4,6 +4,7 @@ package com.ms.order_service.messaging.consumer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
 import com.ms.common.messaging.MessageEnvelope;
+import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
 import com.ms.order_service.application.OrderApplicationService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class PaymentEventConsumer {
                 message.getMessageId(),
                 message.getMessageType()
         );
-        if(!"PaymentCompletedEvent".equals(message.getMessageType())){
+        if(!MessageTypes.PAYMENT_COMPLETED_EVENT.equals(message.getMessageType())){
             log.info("Message ignored. messageType={}", message.getMessageType());
             ack.acknowledge();
             return;
