@@ -2,6 +2,7 @@ package com.ms.payment_service.application;
 
 import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
 import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
+import com.ms.common.messaging.AggregateTypes;
 import com.ms.common.messaging.MessageEnvelope;
 import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
@@ -36,7 +37,7 @@ public class PaymentApplicationService {
 
         MessageEnvelope<PaymentCompletedEventPayload> event = new MessageEnvelope<>(
                 MessageTypes.PAYMENT_COMPLETED_EVENT,
-                "ORDER",
+                AggregateTypes.ORDER,
                 orderId.toString(),
                 command.getCorrelationId(),
                 command.getMessageId(),
