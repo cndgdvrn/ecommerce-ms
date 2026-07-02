@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
-@Table
-@Entity(name = "products")
+@Table(name = "products")
+@Entity
 @NoArgsConstructor
 @Getter
 public class Product {
