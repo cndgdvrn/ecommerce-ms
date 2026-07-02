@@ -12,6 +12,7 @@ import com.ms.inventory_service.domain.model.Product;
 import com.ms.inventory_service.domain.model.StockReservation;
 import com.ms.inventory_service.domain.repository.ProductRepository;
 import com.ms.inventory_service.domain.repository.StockReservationRepository;
+import com.ms.inventory_service.messaging.publisher.KafkaMessagePublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class InventoryApplicationService {
 
     private final ProductRepository productRepository;
     private final StockReservationRepository stockReservationRepository;
-    private final KafkaTemplate<String, MessageEnvelope> kafkaTemplate;
+    private final KafkaMessagePublisher kafkaMessagePublisher;
 
     public void reserveStock(MessageEnvelope<ReserveStockCommandPayload> command) {
 
@@ -39,7 +40,7 @@ public class InventoryApplicationService {
             }
             StockReservedEventPayload eventPayload = new StockReservedEventPayload(payload.orderId());
             MessageEnvelope<StockReservedEventPayload> event = MessageEnvelope.from(command, MessageTypes.STOCK_RESERVED_EVENT, eventPayload);
-            kafkaTemplate.send(Topics.INVENTORY_EVENTS, payload.orderId().toString(), event);
+            kafkaMessagePublisher.publish(Topics.INVENTORY_EVENTS, payload.orderId().toString(), event);
         }catch (Exception e){
             handleReservationFailure(command, e.getMessage());
         }
@@ -53,7 +54,7 @@ public class InventoryApplicationService {
         }
         StockReservationFailedEventPayload eventPayload = new StockReservationFailedEventPayload(payload.orderId(), message);
         MessageEnvelope<StockReservationFailedEventPayload> envelope = MessageEnvelope.from(command, MessageTypes.STOCK_RESERVATION_FAILED_EVENT, eventPayload);
-        kafkaTemplate.send(Topics.INVENTORY_EVENTS, payload.orderId().toString(), envelope);
+        kafkaMessagePublisher.publish(Topics.INVENTORY_EVENTS, payload.orderId().toString(), envelope);
 
 
     }
