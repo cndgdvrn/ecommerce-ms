@@ -29,7 +29,7 @@ public class InventoryApplicationService {
     @Transactional
     public void reserveStock(MessageEnvelope<ReserveStockCommandPayload> command) {
 
-        boolean isStockSuccess = EcommerceUtil.isStockSuccess(0);
+        boolean isStockSuccess = EcommerceUtil.isStockSuccess(80);
 
         try {
             if(isStockSuccess){

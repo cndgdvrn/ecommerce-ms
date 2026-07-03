@@ -66,6 +66,18 @@ services:
     volumes:
       - postgres_inventory_data:/var/lib/postgresql/data
 
+  notification-db:
+    image: postgres:16
+    container_name: ecommerce-notification-db
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: notification_user
+      POSTGRES_PASSWORD: notification_pass
+    volumes:
+      - postgres_notification_data:/var/lib/postgresql/data
+
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -76,6 +88,7 @@ services:
       - order-db
       - payment-db
       - inventory-db
+      - notification-db
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
@@ -86,5 +99,6 @@ volumes:
   postgres_inventory_data:
   postgres_payment_data:
   postgres_order_data:
+  postgres_notification_data:
   pgadmin_data:
   kafka_data:
