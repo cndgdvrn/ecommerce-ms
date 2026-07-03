@@ -61,5 +61,8 @@ public class Order {
         this.updatedAt = Instant.now();
     }
 
-
+    public void markConfirmed() {
+        this.status = OrderStatus.CONFIRMED;
+        this.updatedAt = Instant.now();
+    }
 }

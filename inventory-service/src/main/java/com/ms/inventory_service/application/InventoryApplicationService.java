@@ -16,6 +16,7 @@ import com.ms.inventory_service.messaging.publisher.KafkaMessagePublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class InventoryApplicationService {
     private final StockReservationRepository stockReservationRepository;
     private final KafkaMessagePublisher kafkaMessagePublisher;
 
+    @Transactional
     public void reserveStock(MessageEnvelope<ReserveStockCommandPayload> command) {
 
         try {
@@ -46,6 +48,7 @@ public class InventoryApplicationService {
         }
     }
 
+    @Transactional
     private void handleReservationFailure(MessageEnvelope<ReserveStockCommandPayload> command, String message) {
         ReserveStockCommandPayload payload = command.getPayload();
         for (OrderItemPayload item : payload.items()) {

@@ -3,6 +3,8 @@ package com.ms.order_service.application;
 
 import com.ms.common.contracts.inventory.OrderItemPayload;
 import com.ms.common.contracts.inventory.ReserveStockCommandPayload;
+import com.ms.common.contracts.inventory.StockReservationFailedEventPayload;
+import com.ms.common.contracts.inventory.StockReservedEventPayload;
 import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
 import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
 import com.ms.common.messaging.AggregateTypes;
@@ -93,6 +95,37 @@ public class OrderApplicationService {
                 payload.orderId(),
                 payload.paymentId(),
                 payload.paidAmount(),
+                event.getCorrelationId(),
+                event.getCausationId()
+        );
+    }
+
+    @Transactional
+    public void markStockReserved(MessageEnvelope<StockReservedEventPayload> event){
+        StockReservedEventPayload payload = event.getPayload();
+
+        Order order = orderRepository.findById(payload.orderId()).orElseThrow(() -> new IllegalStateException("Order not found. orderId: " + payload.orderId()));
+        order.markStockReserved();
+        order.markConfirmed();
+        orderRepository.save(order);
+
+        log.info("Order confirmed. orderId={}, correlationId={}, causationId={}",
+                payload.orderId(),
+                event.getCorrelationId(),
+                event.getCausationId()
+        );
+    }
+
+    @Transactional
+    public void markStockFailed(MessageEnvelope<StockReservationFailedEventPayload> event){
+        StockReservationFailedEventPayload payload = event.getPayload();
+        Order order = orderRepository.findById(payload.orderId()).orElseThrow(() -> new IllegalStateException("Order not found. orderId: " + payload.orderId()));
+        order.markStockFailed();
+        orderRepository.save(order);
+
+        log.info("Order stock reservation failed. orderId={}, reason={}, correlationId={}, causationId={}",
+                payload.orderId(),
+                payload.reason(),
                 event.getCorrelationId(),
                 event.getCausationId()
         );
