@@ -5,6 +5,7 @@ import com.ms.common.contracts.inventory.OrderItemPayload;
 import com.ms.common.contracts.inventory.ReserveStockCommandPayload;
 import com.ms.common.contracts.inventory.StockReservationFailedEventPayload;
 import com.ms.common.contracts.inventory.StockReservedEventPayload;
+import com.ms.common.contracts.order.OrderConfirmedEventPayload;
 import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
 import com.ms.common.contracts.payment.PaymentFailedEventPayload;
 import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
@@ -109,6 +110,10 @@ public class OrderApplicationService {
         order.markStockReserved();
         order.markConfirmed();
         orderRepository.save(order);
+
+        OrderConfirmedEventPayload eventPayload = new OrderConfirmedEventPayload(payload.orderId(), order.getCustomerId(), order.getTotalAmount(), order.getCurrency());
+        MessageEnvelope<OrderConfirmedEventPayload> orderConfirmedEvent = MessageEnvelope.from(event, MessageTypes.ORDER_CONFIRMED_EVENT, eventPayload);
+        kafkaMessagePublisher.publish(Topics.ORDER_EVENTS,order.getId().toString(),orderConfirmedEvent);
 
         log.info("Order confirmed. orderId={}, correlationId={}, causationId={}",
                 payload.orderId(),

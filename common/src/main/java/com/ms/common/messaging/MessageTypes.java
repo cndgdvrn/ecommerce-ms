@@ -10,7 +10,7 @@ public final class MessageTypes {
     public static final String STOCK_RESERVED_EVENT= "StockReservedEvent";
     public static final String STOCK_RESERVATION_FAILED_EVENT="StockReservationFailedEvent";
 
-
+    public static final String ORDER_CONFIRMED_EVENT = "OrderConfirmedEvent";
 
     private MessageTypes() {
     }
