@@ -6,9 +6,7 @@ import com.ms.common.contracts.inventory.ReserveStockCommandPayload;
 import com.ms.common.contracts.inventory.StockReservationFailedEventPayload;
 import com.ms.common.contracts.inventory.StockReservedEventPayload;
 import com.ms.common.contracts.order.OrderConfirmedEventPayload;
-import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
-import com.ms.common.contracts.payment.PaymentFailedEventPayload;
-import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
+import com.ms.common.contracts.payment.*;
 import com.ms.common.messaging.AggregateTypes;
 import com.ms.common.messaging.MessageEnvelope;
 import com.ms.common.messaging.MessageTypes;
@@ -129,11 +127,14 @@ public class OrderApplicationService {
         order.markStockFailed();
         orderRepository.save(order);
 
-        log.info("Order stock reservation failed. orderId={}, reason={}, correlationId={}, causationId={}",
-                payload.orderId(),
+        RefundPaymentCommandPayload refundPayload = new RefundPaymentCommandPayload(payload.orderId(), order.getCustomerId(), order.getTotalAmount(), order.getCurrency(), payload.reason());
+        MessageEnvelope<RefundPaymentCommandPayload> refundCommand = MessageEnvelope.from(event, MessageTypes.REFUND_PAYMENT_COMMAND, refundPayload);
+
+        kafkaMessagePublisher.publish(Topics.PAYMENT_COMMANDS,order.getId().toString(),refundCommand);
+        log.info("RefundPaymentCommand published. orderId={}, reason={}, correlationId={}",
+                order.getId(),
                 payload.reason(),
-                event.getCorrelationId(),
-                event.getCausationId()
+                event.getCorrelationId()
         );
     }
 
@@ -149,6 +150,23 @@ public class OrderApplicationService {
                 payload.reason(),
                 event.getCorrelationId(),
                 event.getCausationId()
+        );
+    }
+
+    @Transactional
+    public void markPaymentRefunded(MessageEnvelope<PaymentRefundedEventPayload> event) {
+        PaymentRefundedEventPayload payload = event.getPayload();
+
+        Order order = orderRepository.findById(payload.orderId())
+                .orElseThrow(() -> new IllegalStateException("Order not found. orderId: " + payload.orderId()));
+
+        order.markCancelled();
+        orderRepository.save(order);
+
+        log.info("Order cancelled after payment refund. orderId={}, refundId={}, correlationId={}",
+                payload.orderId(),
+                payload.refundId(),
+                event.getCorrelationId()
         );
     }
 }

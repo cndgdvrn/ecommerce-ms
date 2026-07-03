@@ -3,6 +3,7 @@ package com.ms.payment_service.messaging.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
+import com.ms.common.contracts.payment.RefundPaymentCommandPayload;
 import com.ms.common.messaging.MessageEnvelope;
 import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
@@ -27,17 +28,22 @@ public class PaymentCommandConsumer {
     )
     public void consume(MessageEnvelope<?> message, Acknowledgment acknowledgment){
 
-        if (!MessageTypes.PROCESS_PAYMENT_COMMAND.equals(message.getMessageType())) {
-            log.info("Message ignored. messageType={}", message.getMessageType());
+        if (MessageTypes.REFUND_PAYMENT_COMMAND.equals(message.getMessageType())){
+            RefundPaymentCommandPayload payload = objectMapper.convertValue(message.getPayload(), RefundPaymentCommandPayload.class);
+            MessageEnvelope<RefundPaymentCommandPayload> typedMessage = message.withPayload(payload);
+            paymentApplicationService.refundPayment(typedMessage);
+            acknowledgment.acknowledge();
+            return;
+        }else if (MessageTypes.PROCESS_PAYMENT_COMMAND.equals(message.getMessageType())){
+            ProcessPaymentCommandPayload payload = objectMapper.convertValue(message.getPayload(), ProcessPaymentCommandPayload.class);
+            MessageEnvelope<ProcessPaymentCommandPayload> typedMessage = message.withPayload(payload);
+            paymentApplicationService.processPayment(typedMessage);
             acknowledgment.acknowledge();
             return;
         }
 
-        ProcessPaymentCommandPayload payload = objectMapper.convertValue(message.getPayload(), ProcessPaymentCommandPayload.class);
-        MessageEnvelope<ProcessPaymentCommandPayload> typedMessage = message.withPayload(payload);
-
-        paymentApplicationService.processPayment(typedMessage);
+        log.info("Message ignored. messageType={}", message.getMessageType());
         acknowledgment.acknowledge();
-    }
+     }
 
 }

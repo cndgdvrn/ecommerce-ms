@@ -65,4 +65,9 @@ public class Order {
         this.status = OrderStatus.CONFIRMED;
         this.updatedAt = Instant.now();
     }
+
+    public void markCancelled(){
+        this.status = OrderStatus.CANCELLED;
+        this.updatedAt = Instant.now();
+    }
 }

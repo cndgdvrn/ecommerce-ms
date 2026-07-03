@@ -4,6 +4,7 @@ package com.ms.order_service.messaging.consumer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
 import com.ms.common.contracts.payment.PaymentFailedEventPayload;
+import com.ms.common.contracts.payment.PaymentRefundedEventPayload;
 import com.ms.common.messaging.MessageEnvelope;
 import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
@@ -36,6 +37,12 @@ public class PaymentEventConsumer {
             PaymentFailedEventPayload payload = objectMapper.convertValue(message.getPayload(), PaymentFailedEventPayload.class);
             MessageEnvelope<PaymentFailedEventPayload> typedMessage = message.withPayload(payload);
             orderApplicationService.markPaymentFailed(typedMessage);
+            ack.acknowledge();
+            return;
+        }else if (MessageTypes.PAYMENT_REFUNDED_EVENT.equals(message.getMessageType())) {
+            PaymentRefundedEventPayload payload = objectMapper.convertValue(message.getPayload(), PaymentRefundedEventPayload.class);
+            MessageEnvelope<PaymentRefundedEventPayload> typedMessage = message.withPayload(payload);
+            orderApplicationService.markPaymentRefunded(typedMessage);
             ack.acknowledge();
             return;
         }

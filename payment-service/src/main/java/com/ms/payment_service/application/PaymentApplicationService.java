@@ -1,8 +1,6 @@
 package com.ms.payment_service.application;
 
-import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
-import com.ms.common.contracts.payment.PaymentFailedEventPayload;
-import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
+import com.ms.common.contracts.payment.*;
 import com.ms.common.messaging.MessageEnvelope;
 import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
@@ -52,6 +50,40 @@ public class PaymentApplicationService {
                     paymentId
             );
         }
+    }
+
+
+    public void refundPayment(MessageEnvelope<RefundPaymentCommandPayload> command) {
+        RefundPaymentCommandPayload payload = command.getPayload();
+
+        String refundId = "refund-" + payload.orderId() + "-" + UUID.randomUUID();
+
+        PaymentRefundedEventPayload eventPayload = new PaymentRefundedEventPayload(
+                payload.orderId(),
+                payload.customerId(),
+                refundId,
+                payload.amount(),
+                payload.currency(),
+                payload.reason()
+        );
+
+        MessageEnvelope<PaymentRefundedEventPayload> event = MessageEnvelope.from(
+                command,
+                MessageTypes.PAYMENT_REFUNDED_EVENT,
+                eventPayload
+        );
+
+        kafkaMessagePublisher.publish(
+                Topics.PAYMENT_EVENTS,
+                payload.orderId().toString(),
+                event
+        );
+
+        log.info("PaymentRefundedEvent published. orderId={}, refundId={}, reason={}",
+                payload.orderId(),
+                refundId,
+                payload.reason()
+        );
     }
 
 //    @PostConstruct
