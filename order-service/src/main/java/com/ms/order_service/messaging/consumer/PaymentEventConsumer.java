@@ -3,6 +3,7 @@ package com.ms.order_service.messaging.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
+import com.ms.common.contracts.payment.PaymentFailedEventPayload;
 import com.ms.common.messaging.MessageEnvelope;
 import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
@@ -24,21 +25,21 @@ public class PaymentEventConsumer {
     @KafkaListener(
             topics = {Topics.PAYMENT_EVENTS}, groupId = "order-service-group"
     )
-    public void consume(MessageEnvelope<?> message, Acknowledgment ack){
-
-        log.info("Message received from payment.events. messageId={}, type={}",
-                message.getMessageId(),
-                message.getMessageType()
-        );
-        if(!MessageTypes.PAYMENT_COMPLETED_EVENT.equals(message.getMessageType())){
-            log.info("Message ignored. messageType={}", message.getMessageType());
+    public void consume(MessageEnvelope<?> message, Acknowledgment ack) {
+        if (MessageTypes.PAYMENT_COMPLETED_EVENT.equals(message.getMessageType())) {
+            PaymentCompletedEventPayload payload = objectMapper.convertValue(message.getPayload(), PaymentCompletedEventPayload.class);
+            MessageEnvelope<PaymentCompletedEventPayload> typedMessage = message.withPayload(payload);
+            orderApplicationService.markPaymentCompleted(typedMessage);
+            ack.acknowledge();
+            return;
+        }else if (MessageTypes.PAYMENT_FAILED_EVENT.equals(message.getMessageType())) {
+            PaymentFailedEventPayload payload = objectMapper.convertValue(message.getPayload(), PaymentFailedEventPayload.class);
+            MessageEnvelope<PaymentFailedEventPayload> typedMessage = message.withPayload(payload);
+            orderApplicationService.markPaymentFailed(typedMessage);
             ack.acknowledge();
             return;
         }
-        PaymentCompletedEventPayload payload = objectMapper.convertValue(message.getPayload(), PaymentCompletedEventPayload.class);
-        MessageEnvelope<PaymentCompletedEventPayload> typedMessage = message.withPayload(payload);
-
-        orderApplicationService.markPaymentCompleted(typedMessage);
+        log.info("Message ignored. Message Type: {}", message.getMessageType());
         ack.acknowledge();
     }
 

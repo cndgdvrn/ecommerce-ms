@@ -8,7 +8,6 @@ import com.ms.common.messaging.MessageEnvelope;
 import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
 import com.ms.order_service.application.OrderApplicationService;
-import com.ms.order_service.messaging.publisher.KafkaMessagePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class InventoryEventConsumer {
 
-    private final KafkaMessagePublisher kafkaMessagePublisher;
     private final ObjectMapper objectMapper;
     private final OrderApplicationService orderApplicationService;
 
@@ -30,6 +28,7 @@ public class InventoryEventConsumer {
             StockReservedEventPayload payload = objectMapper.convertValue(message.getPayload(), StockReservedEventPayload.class);
             MessageEnvelope<StockReservedEventPayload> typedMessage = message.withPayload(payload);
             orderApplicationService.markStockReserved(typedMessage);
+            acknowledgment.acknowledge();
             return;
         }
 
@@ -37,6 +36,7 @@ public class InventoryEventConsumer {
             StockReservationFailedEventPayload payload = objectMapper.convertValue(message.getPayload(), StockReservationFailedEventPayload.class);
             MessageEnvelope<StockReservationFailedEventPayload> typedMessage = message.withPayload(payload);
             orderApplicationService.markStockFailed(typedMessage);
+            acknowledgment.acknowledge();
             return;
         }
         log.info("Message ignored. Message Type: {}", message.getMessageType());

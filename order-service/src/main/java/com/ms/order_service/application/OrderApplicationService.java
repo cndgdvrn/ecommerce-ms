@@ -6,6 +6,7 @@ import com.ms.common.contracts.inventory.ReserveStockCommandPayload;
 import com.ms.common.contracts.inventory.StockReservationFailedEventPayload;
 import com.ms.common.contracts.inventory.StockReservedEventPayload;
 import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
+import com.ms.common.contracts.payment.PaymentFailedEventPayload;
 import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
 import com.ms.common.messaging.AggregateTypes;
 import com.ms.common.messaging.MessageEnvelope;
@@ -132,4 +133,17 @@ public class OrderApplicationService {
     }
 
 
+    @Transactional
+    public void markPaymentFailed(MessageEnvelope<PaymentFailedEventPayload> event) {
+        PaymentFailedEventPayload payload = event.getPayload();
+        Order order = orderRepository.findById(payload.orderId()).orElseThrow(() -> new IllegalStateException("Order not found. orderId: " + payload.orderId()));
+        order.markPaymentFailed();
+        orderRepository.save(order);
+        log.info("Order payment failed. orderId={}, reason={}, correlationId={}, causationId={}",
+                payload.orderId(),
+                payload.reason(),
+                event.getCorrelationId(),
+                event.getCausationId()
+        );
+    }
 }

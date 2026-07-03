@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +23,6 @@ public class InventoryDataInitializer implements CommandLineRunner {
             Product demoProduct = new Product(1L, "Demo Product", 100);
             productRepository.save(demoProduct);
         }
-
-
     }
+
 }
