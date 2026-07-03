@@ -3,13 +3,11 @@ package com.ms.payment_service.application;
 import com.ms.common.contracts.payment.PaymentCompletedEventPayload;
 import com.ms.common.contracts.payment.PaymentFailedEventPayload;
 import com.ms.common.contracts.payment.ProcessPaymentCommandPayload;
-import com.ms.common.messaging.AggregateTypes;
 import com.ms.common.messaging.MessageEnvelope;
 import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
+import com.ms.common.util.EcommerceUtil;
 import com.ms.payment_service.messaging.publisher.KafkaMessagePublisher;
-import com.ms.payment_service.util.PaymentUtil;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +24,7 @@ public class PaymentApplicationService {
 
     public void processPayment(MessageEnvelope<ProcessPaymentCommandPayload> envelope){
 
-        boolean isPaymentSuccess = PaymentUtil.isPaymentSuccess(40);
+        boolean isPaymentSuccess = EcommerceUtil.isPaymentSuccess(100);
 
         ProcessPaymentCommandPayload payload = envelope.getPayload();
         Long orderId = payload.orderId();
@@ -49,7 +47,6 @@ public class PaymentApplicationService {
             MessageEnvelope<PaymentCompletedEventPayload> event = MessageEnvelope.from(envelope, MessageTypes.PAYMENT_COMPLETED_EVENT, eventPayload);
 
             kafkaMessagePublisher.publish(Topics.PAYMENT_EVENTS, orderId.toString(),event);
-
             log.info("PaymentCompletedEvent published. orderId={}, paymentId={}",
                     payload.orderId(),
                     paymentId

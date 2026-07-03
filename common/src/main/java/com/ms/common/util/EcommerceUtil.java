@@ -1,9 +1,8 @@
-package com.ms.payment_service.util;
+package com.ms.common.util;
 
 import java.util.Random;
 
-public class PaymentUtil {
-
+public class EcommerceUtil {
 
     public static int getRandomNumber(int interval1, int interval2){
         Random random = new Random();
@@ -18,6 +17,10 @@ public class PaymentUtil {
         return chance > randomNumber;
     }
 
-
-
+    public static boolean isStockSuccess(int chance){
+        int randomNumber = getRandomNumber(0, 100);
+        System.out.println(randomNumber);
+        if(chance <0 || chance > 100) return false;
+        return chance > randomNumber;
+    }
 }

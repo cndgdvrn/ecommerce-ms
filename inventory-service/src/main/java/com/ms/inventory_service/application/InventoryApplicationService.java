@@ -8,13 +8,13 @@ import com.ms.common.contracts.inventory.StockReservedEventPayload;
 import com.ms.common.messaging.MessageEnvelope;
 import com.ms.common.messaging.MessageTypes;
 import com.ms.common.messaging.Topics;
+import com.ms.common.util.EcommerceUtil;
 import com.ms.inventory_service.domain.model.Product;
 import com.ms.inventory_service.domain.model.StockReservation;
 import com.ms.inventory_service.domain.repository.ProductRepository;
 import com.ms.inventory_service.domain.repository.StockReservationRepository;
 import com.ms.inventory_service.messaging.publisher.KafkaMessagePublisher;
 import lombok.RequiredArgsConstructor;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,20 +29,26 @@ public class InventoryApplicationService {
     @Transactional
     public void reserveStock(MessageEnvelope<ReserveStockCommandPayload> command) {
 
-        try {
-            ReserveStockCommandPayload payload = command.getPayload();
-            for (OrderItemPayload item : payload.items()) {
-                Product product = productRepository.findById(item.productId())
-                        .orElseThrow(() -> new IllegalStateException("Product not found. productId=" + item.productId()));
+        boolean isStockSuccess = EcommerceUtil.isStockSuccess(0);
 
-                product.reserve(item.quantity());
-                productRepository.save(product);
-                StockReservation reserved = StockReservation.reserved(payload.orderId(), item.productId(), item.quantity());
-                stockReservationRepository.save(reserved);
+        try {
+            if(isStockSuccess){
+                ReserveStockCommandPayload payload = command.getPayload();
+                for (OrderItemPayload item : payload.items()) {
+                    Product product = productRepository.findById(item.productId())
+                            .orElseThrow(() -> new IllegalStateException("Product not found. productId=" + item.productId()));
+
+                    product.reserve(item.quantity());
+                    productRepository.save(product);
+                    StockReservation reserved = StockReservation.reserved(payload.orderId(), item.productId(), item.quantity());
+                    stockReservationRepository.save(reserved);
+                }
+                StockReservedEventPayload eventPayload = new StockReservedEventPayload(payload.orderId());
+                MessageEnvelope<StockReservedEventPayload> event = MessageEnvelope.from(command, MessageTypes.STOCK_RESERVED_EVENT, eventPayload);
+                kafkaMessagePublisher.publish(Topics.INVENTORY_EVENTS, payload.orderId().toString(), event);
+            }else{
+                handleReservationFailure(command,"Inventory stock simulation failed");
             }
-            StockReservedEventPayload eventPayload = new StockReservedEventPayload(payload.orderId());
-            MessageEnvelope<StockReservedEventPayload> event = MessageEnvelope.from(command, MessageTypes.STOCK_RESERVED_EVENT, eventPayload);
-            kafkaMessagePublisher.publish(Topics.INVENTORY_EVENTS, payload.orderId().toString(), event);
         }catch (Exception e){
             handleReservationFailure(command, e.getMessage());
         }
